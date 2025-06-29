@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify
 import joblib
 import numpy as np
-import os
 from flask_cors import CORS
-from model.lvq_module import LVQClassifier
-from model.weather import ambil_data_dasarian
+from lvq_module import LVQClassifier
+from weather import ambil_data_dasarian
 from datetime import datetime
 
 app = Flask(__name__)
@@ -12,7 +11,7 @@ CORS(app)
 
 # Load model dan scaler
 model = joblib.load("lvq_modelGresik1.joblib")
-scaler = joblib.load("scalerGresik1.joblib")
+scaler = joblib.load("scaler.joblib")
 
 @app.route("/")
 def index():
@@ -46,16 +45,8 @@ def predict():
 @app.route("/predict-live", methods=["GET"])
 def predict_from_openweather():
     try:
-        # Ambil parameter lat dan lon dari query string
-        lat = request.args.get('lat', type=float)
-        lon = request.args.get('lon', type=float)
-        
-        if lat is None or lon is None:
-            return jsonify({"error": "Parameter lat dan lon diperlukan"}), 400
-        
-        # Ambil data weather berdasarkan koordinat yang diberikan
-        fitur = ambil_data_dasarian(lat, lon)
-        print(f"Fitur dasarian dari OpenWeather untuk lat={lat}, lon={lon}:", fitur)
+        fitur = ambil_data_dasarian()
+        print("Fitur dasarian dari OpenWeather:", fitur)
 
         input_scaled = scaler.transform([fitur])
         hasil = model.predict(input_scaled)
@@ -66,30 +57,26 @@ def predict_from_openweather():
             "features": fitur,
             "prediction_ai": int(hasil[0]),
             "prediction_by_date": mangsa_tanggal,
-            "used_by_frontend": mangsa_tanggal,
-            "location": {"lat": lat, "lon": lon}
+            "used_by_frontend": mangsa_tanggal  # biar frontend konsisten
         })
     except Exception as e:
-        print(f"Error in predict_from_openweather: {str(e)}")
         return jsonify({"error": str(e)}), 500
-
+    
 # =============================
 # ENDPOINT UNTUK MENDAPATKAN DATA CUACA DETAIL
 # =============================
 @app.route("/weather-data", methods=["GET"])
 def get_weather_data():
     try:
-        # Ambil parameter lat dan lon dari query string
         lat = request.args.get('lat', type=float)
         lon = request.args.get('lon', type=float)
-        
+
         if lat is None or lon is None:
             return jsonify({"error": "Parameter lat dan lon diperlukan"}), 400
-        
-        # Ambil data weather detail berdasarkan koordinat
-        from weather import ambil_data_cuaca_detail
+
+        from weather import ambil_data_cuaca_detail  # atau dari model.weather jika di folder model
         weather_data = ambil_data_cuaca_detail(lat, lon)
-        
+
         return jsonify(weather_data)
     except Exception as e:
         print(f"Error in get_weather_data: {str(e)}")
@@ -124,5 +111,4 @@ def mapping_pranata_mangsa_by_date():
     return None
 
 if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=5000)
