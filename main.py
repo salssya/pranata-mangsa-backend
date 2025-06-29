@@ -3,7 +3,7 @@ import joblib
 import numpy as np
 import os
 from flask_cors import CORS
-from lvq_module import LVQClassifier
+from model.lvq_module import LVQClassifier
 from model.weather import ambil_data_dasarian
 from datetime import datetime
 
