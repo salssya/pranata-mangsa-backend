@@ -4,7 +4,7 @@ import numpy as np
 import os
 from flask_cors import CORS
 from lvq_module import LVQClassifier
-from weather import ambil_data_dasarian
+from model.weather import ambil_data_dasarian
 from datetime import datetime
 
 app = Flask(__name__)
