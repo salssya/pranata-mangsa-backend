@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "start": "node server.js", // atau file utama Anda
+    "dev": "nodemon server.js"
+  }
+}
