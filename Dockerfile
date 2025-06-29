@@ -15,4 +15,4 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # Jalankan aplikasi Flask
-CMD ["python", "weather.py", "main.py", "lvq_module.py"]
+CMD ["python", "main.py"]
