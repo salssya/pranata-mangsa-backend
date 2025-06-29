@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import joblib
 import numpy as np
+import os
 from flask_cors import CORS
 from lvq_module import LVQClassifier
 from weather import ambil_data_dasarian
@@ -123,4 +124,5 @@ def mapping_pranata_mangsa_by_date():
     return None
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
